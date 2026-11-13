@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Prompt:wght@500;600;700&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>try{var t=JSON.parse(localStorage.getItem('ffclaim_theme'));if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
 /* Layout + design: same shell as Fullfeel Return / Outbound — sticky top bar (CI stripe, logo, tabs), one working column; forms open as dialogs. */
 :root{
@@ -190,6 +191,9 @@ dialog::backdrop{background:color-mix(in srgb,#000 45%,transparent)}
 
 /* login / setup — full-screen card on the CI background */
 .gate{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px}
+.themebtn{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:8px;width:34px;height:30px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;line-height:1;padding:0}
+.themebtn:hover{background:var(--tint)}
+.gate .themebtn{position:fixed;top:14px;right:14px;z-index:41}
 .gate .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 10px 30px rgba(46,95,172,.12)}
 .gate .card::before{content:"";display:block;height:4px;background:linear-gradient(90deg,var(--primary) 0 58%,var(--accent) 58% 100%)}
 .gate .in{padding:22px 24px 24px;display:flex;flex-direction:column;gap:12px}
@@ -277,7 +281,7 @@ dialog::backdrop{background:color-mix(in srgb,#000 45%,transparent)}
 <body>
 
 <!-- ================= SETUP (first launch, no config) ================= -->
-<div class="gate" id="gateSetup" hidden><div class="card"><div class="in">
+<div class="gate" id="gateSetup" hidden><button class="themebtn" type="button" data-theme-toggle title="สลับธีมสว่าง / มืด" aria-label="สลับธีมสว่าง / มืด"></button><div class="card"><div class="in">
   <img class="gate-logo" alt="FullFeel">
   <h2>ตั้งค่าการเชื่อมต่อครั้งแรก</h2>
   <div class="hint" style="text-align:center">ใส่ค่าจาก Supabase → Project Settings → API (ทำครั้งเดียวต่อเครื่อง หรือให้ผู้ดูแลใส่ไว้ในไฟล์)</div>
@@ -288,7 +292,7 @@ dialog::backdrop{background:color-mix(in srgb,#000 45%,transparent)}
 </div></div></div>
 
 <!-- ================= LOGIN ================= -->
-<div class="gate" id="gateLogin" hidden><div class="card"><form class="in" id="loginForm">
+<div class="gate" id="gateLogin" hidden><button class="themebtn" type="button" data-theme-toggle title="สลับธีมสว่าง / มืด" aria-label="สลับธีมสว่าง / มืด"></button><div class="card"><form class="in" id="loginForm">
   <img class="gate-logo" alt="FullFeel">
   <h2>ระบบเคลมสินค้า</h2>
   <div class="f"><label>อีเมล</label><input type="email" id="lgEmail" autocomplete="username" required></div>
@@ -300,7 +304,7 @@ dialog::backdrop{background:color-mix(in srgb,#000 45%,transparent)}
 </form></div></div>
 
 <!-- ================= PENDING ACCOUNT ================= -->
-<div class="gate" id="gatePending" hidden><div class="card"><div class="in">
+<div class="gate" id="gatePending" hidden><button class="themebtn" type="button" data-theme-toggle title="สลับธีมสว่าง / มืด" aria-label="สลับธีมสว่าง / มืด"></button><div class="card"><div class="in">
   <img class="gate-logo" alt="FullFeel">
   <h2>บัญชีนี้รอ Admin อนุมัติ</h2>
   <div class="hint" style="text-align:center" id="pendingTxt"></div>
@@ -314,7 +318,7 @@ dialog::backdrop{background:color-mix(in srgb,#000 45%,transparent)}
       <div class="brand-tools">
         <span class="conn" id="conn"><i></i><span id="connTxt">กำลังเชื่อมต่อ</span></span>
         <span class="me"><b id="meName"></b><span class="pill info" id="meRole" style="cursor:help"></span></span>
-        <button class="btn sm" type="button" id="btnPw" title="เปลี่ยนรหัสผ่าน">🔑 รหัสผ่าน</button><button class="btn sm" type="button" data-logout>ออก</button>
+        <button class="themebtn" type="button" data-theme-toggle title="สลับธีมสว่าง / มืด" aria-label="สลับธีมสว่าง / มืด"></button><button class="btn sm" type="button" id="btnPw" title="เปลี่ยนรหัสผ่าน">🔑 รหัสผ่าน</button><button class="btn sm" type="button" data-logout>ออก</button>
       </div>
     </div>
     <nav class="tabs" role="tablist" aria-label="เมนูหลัก" id="tabs">
@@ -685,6 +689,13 @@ function toast(msg, ms = 3200){ const t = $('#toast'); t.textContent = msg; t.hi
 const LS = { get: (k, d = null) => { try { const v = localStorage.getItem('ffclaim_' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
              set: (k, v) => { try { localStorage.setItem('ffclaim_' + k, JSON.stringify(v)); } catch {} },
              del: k => { try { localStorage.removeItem('ffclaim_' + k); } catch {} } };
+/* ================= Theme (light / dark) ================= */
+const sysDark = () => window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+const curTheme = () => document.documentElement.dataset.theme || (sysDark() ? 'dark' : 'light');
+function paintThemeBtns(){ const d = curTheme() === 'dark'; $$('[data-theme-toggle]').forEach(b => { b.textContent = d ? '☀️' : '🌙'; b.title = d ? 'เปลี่ยนเป็นธีมสว่าง' : 'เปลี่ยนเป็นธีมมืด'; }); const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = d ? '#141e2e' : '#2e5fac'; }
+document.addEventListener('click', e => { if (!e.target.closest('[data-theme-toggle]')) return; const t = curTheme() === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = t; LS.set('theme', t); paintThemeBtns(); });
+if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', paintThemeBtns);
+paintThemeBtns();
 function fillSelect(sel, list, cur, blank){
   const opts = (blank != null ? `<option value="">${esc(blank)}</option>` : '') + list.map(o => typeof o === 'string' ? [o, o] : o).map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join('');
   sel.innerHTML = opts; if (cur != null) sel.value = cur;
