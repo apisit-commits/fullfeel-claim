@@ -187,6 +187,25 @@ dialog::backdrop{background:color-mix(in srgb,#000 45%,transparent)}
 .dlg-b>*{flex-shrink:0}
 .dlg-f{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface)}
 .dlg-f .left{margin-right:auto}
+.pwf{position:relative;display:block}
+.pwf input{padding-right:40px}
+.pwf .eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--muted);cursor:pointer;padding:4px 6px;line-height:0;border-radius:6px}
+.pwf .eye:hover{color:var(--primary)}
+.pwf .eye svg{width:18px;height:18px}
+.f input.bad{border-color:var(--bad);background:var(--bad-bg)}
+.f .ferr{font-size:.8rem;color:var(--bad);font-weight:600;min-height:0}
+.f .ferr:empty{display:none}
+.pwm{display:flex;gap:4px;margin-top:5px}
+.pwm i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.pwm[data-s="1"] i:nth-child(-n+1){background:var(--bad)}
+.pwm[data-s="2"] i:nth-child(-n+2){background:var(--warn)}
+.pwm[data-s="3"] i:nth-child(-n+3),.pwm[data-s="4"] i{background:var(--ok)}
+.pwl{font-size:.8rem;font-weight:500;color:var(--muted)}
+.ropt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line-strong);border-radius:10px;padding:10px 12px;cursor:pointer;background:var(--surface)}
+.ropt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.ropt input{accent-color:var(--primary);margin-top:4px;flex:none}
+.ropt b{font-weight:600}
+.ropt small{display:block;color:var(--muted);font-size:.8rem}
 .x{border:0;background:none;font-size:22px;line-height:1;cursor:pointer;color:var(--muted);padding:4px 8px}
 
 /* login / setup — full-screen card on the CI background */
@@ -626,13 +645,28 @@ dialog::backdrop{background:color-mix(in srgb,#000 45%,transparent)}
 
 <!-- ============ CHANGE PASSWORD ============ -->
 <dialog id="dlgPw" style="width:min(420px,calc(100vw - 24px))"><form class="dlg" id="pwForm" novalidate>
-  <div class="dlg-h"><h3 id="pwTitle">เปลี่ยนรหัสผ่าน</h3><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+  <div class="dlg-h"><h3 id="pwTitle">เปลี่ยนรหัสผ่าน</h3><button class="x" type="button" data-close data-pwcancel aria-label="ปิด">×</button></div>
   <div class="dlg-b">
-    <div class="f"><label>รหัสผ่านใหม่ (อย่างน้อย 8 ตัว)</label><input type="password" id="pw1" autocomplete="new-password"></div>
-    <div class="f"><label>ยืนยันรหัสผ่านใหม่</label><input type="password" id="pw2" autocomplete="new-password"></div>
+    <div class="f" id="pw0Wrap"><label for="pw0">รหัสผ่านปัจจุบัน <b class="req">*</b></label><span class="pwf"><input type="password" id="pw0" autocomplete="current-password"><button class="eye" type="button" data-eye aria-label="แสดงรหัสผ่าน" title="แสดงรหัสผ่าน"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></span><span class="ferr" id="pw0Err"></span></div>
+    <div class="f"><label for="pw1">รหัสผ่านใหม่ <b class="req">*</b></label><span class="pwf"><input type="password" id="pw1" autocomplete="new-password" maxlength="72"><button class="eye" type="button" data-eye aria-label="แสดงรหัสผ่าน" title="แสดงรหัสผ่าน"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></span>
+      <div class="pwm" id="pwMeter" data-s="0"><i></i><i></i><i></i><i></i></div><span class="pwl" id="pwLevel"></span><span class="ferr" id="pw1Err"></span></div>
+    <div class="f"><label for="pw2">ยืนยันรหัสผ่านใหม่ <b class="req">*</b></label><span class="pwf"><input type="password" id="pw2" autocomplete="new-password" maxlength="72"><button class="eye" type="button" data-eye aria-label="แสดงรหัสผ่าน" title="แสดงรหัสผ่าน"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></span><span class="ferr" id="pw2Err"></span></div>
     <div class="err" id="pwErr"></div>
   </div>
-  <div class="dlg-f"><button class="btn ghost" type="button" data-close>ยกเลิก</button><button class="btn primary" type="submit">บันทึกรหัสผ่าน</button></div>
+  <div class="dlg-f"><button class="btn ghost" type="button" data-close data-pwcancel>ยกเลิก</button><button class="btn ghost" type="button" data-logout data-pwlogout hidden>ออกจากระบบ</button><button class="btn primary" type="submit" id="pwSave">บันทึกรหัสผ่าน</button></div>
+</form></dialog>
+
+<!-- ============ ADMIN RESET PASSWORD ============ -->
+<dialog id="dlgReset" style="width:min(460px,calc(100vw - 24px))"><form class="dlg" id="rsForm" novalidate>
+  <div class="dlg-h"><h3>รีเซ็ตรหัสผ่าน</h3><button class="x" type="button" data-close aria-label="ปิด">×</button></div>
+  <div class="dlg-b">
+    <div class="hint">ผู้ใช้ <b id="rsEmail" style="color:var(--ink)"></b></div>
+    <label class="ropt"><input type="radio" name="rsMode" value="email"><span><b>ส่งลิงก์ตั้งรหัสใหม่ทางอีเมล</b><small>ผู้ใช้ตั้งรหัสเองจากลิงก์ในอีเมล</small></span></label>
+    <label class="ropt"><input type="radio" name="rsMode" value="temp" checked><span style="flex:1;min-width:0"><b>ตั้งรหัสชั่วคราวให้เลย</b><small>ผู้ใช้ต้องเปลี่ยนรหัสเมื่อเข้าระบบครั้งถัดไป</small>
+      <span class="row" style="gap:6px;margin-top:8px;flex-wrap:nowrap"><input type="text" id="rsPass" class="mono" autocomplete="off" maxlength="72" style="flex:1"><button class="btn sm" type="button" id="rsGen" title="สุ่มรหัสใหม่" aria-label="สุ่มรหัสใหม่">↻</button><button class="btn sm" type="button" id="rsCopy" title="คัดลอก" aria-label="คัดลอก">คัดลอก</button></span></span></label>
+    <div class="err" id="rsErr"></div>
+  </div>
+  <div class="dlg-f"><button class="btn ghost" type="button" data-close>ยกเลิก</button><button class="btn primary" type="submit" id="rsSave">รีเซ็ตรหัสผ่าน</button></div>
 </form></dialog>
 
 <!-- ============ ADD USER ============ -->
@@ -1485,7 +1519,7 @@ async function renderUsers(){
     <td><select data-ub title="ลูกค้า (เฉพาะ Customer)" ${u.role === 'brand' ? '' : 'hidden'}><option value="">— เลือกแบรนด์ —</option>${S.customers.map(b => `<option value="${esc(b.id)}" ${b.id === u.customer_id ? 'selected' : ''}>${esc(b.name)}</option>`).join('')}</select>
       <div class="checks" data-perms ${u.role === 'staff' ? '' : 'hidden'} style="gap:4px">${PERM_KEYS.map(([k, l, h]) => `<label title="${esc(h)}" style="padding:3px 10px;font-size:.82rem"><input type="checkbox" data-pk="${k}" ${!u.perms || u.perms.includes(k) ? 'checked' : ''}> ${l}</label>`).join('')}</div>
       ${u.role === 'admin' ? '<span class="hint">ทำได้ทุกขั้น + ตั้งค่าระบบ</span>' : ''}</td>
-    <td><div class="row" style="gap:4px;flex-wrap:nowrap">${u.role === 'disabled' ? '<button type="button" class="btn sm" data-uon>เปิดใช้งาน</button>' : `<button type="button" class="btn sm primary" data-usave>บันทึก</button>${u.id === S.uid ? '' : '<button type="button" class="btn sm danger" data-uoff>ปิดใช้งาน</button>'}`}</div></td></tr>`).join('')}</tbody></table>`;
+    <td><div class="row" style="gap:4px;flex-wrap:nowrap">${u.role === 'disabled' ? '<button type="button" class="btn sm" data-uon>เปิดใช้งาน</button>' : `<button type="button" class="btn sm primary" data-usave>บันทึก</button>${u.id === S.uid ? '' : '<button type="button" class="btn sm" data-ureset>🔑 รีเซ็ตรหัสผ่าน</button><button type="button" class="btn sm danger" data-uoff>ปิดใช้งาน</button>'}`}</div></td></tr>`).join('')}</tbody></table>`;
 }
 $('#btnUsersReload').onclick = renderUsers;
 const genPass = () => { const a = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'; return [...crypto.getRandomValues(new Uint32Array(10))].map(n => a[n % a.length]).join(''); };
@@ -1535,6 +1569,7 @@ $('#btnCopyLink').onclick = async () => { const url = location.href.split(/[?#]/
 $('#userList').onchange = e => { if (!e.target.matches('[data-ur]')) return; const tr = e.target.closest('tr'), r = e.target.value; tr.querySelector('[data-ub]').hidden = r !== 'brand'; tr.querySelector('[data-perms]').hidden = r !== 'staff'; };
 async function reloadUsers(){ renderUsers(); S.users = await all(() => supa.from('profiles').select('id,name,email,role,perms,customer_id').order('created_at')).catch(() => S.users); }
 $('#userList').onclick = async e => {
+  const rs = e.target.closest('[data-ureset]'); if (rs){ const tr = rs.closest('tr'); return openReset(tr.dataset.u, tr.querySelector('small').textContent); }
   const off = e.target.closest('[data-uoff]'), on = e.target.closest('[data-uon]');
   if (off || on){
     const tr = (off || on).closest('tr'), email = tr.querySelector('small').textContent;
@@ -1933,17 +1968,83 @@ $('#lgForgot').onclick = async () => {
   const { error } = await supa.auth.resetPasswordForEmail(email, { redirectTo: location.href.split(/[?#]/)[0] });
   $('#lgMsg').innerHTML = error ? 'ส่งไม่ได้: ' + esc(error.message) : '<b style="color:var(--ok)">ส่งอีเมลแล้ว</b> — กดลิงก์ในอีเมลเพื่อตั้งรหัสผ่านใหม่';
 };
-function openPw(recovery){ $('#pwForm').reset(); $('#pwErr').textContent = ''; $('#pwTitle').textContent = recovery ? 'ตั้งรหัสผ่านใหม่' : 'เปลี่ยนรหัสผ่าน'; $('#dlgPw').showModal(); $('#pw1').focus(); }
-$('#btnPw').onclick = () => openPw(false);
+/* ---- เปลี่ยนรหัสผ่าน: change = ผู้ใช้เปลี่ยนเอง · recovery = จากลิงก์อีเมล · forced = หลัง Admin ตั้งรหัสชั่วคราว ---- */
+let pwMode = 'change';
+const pwScore = v => { if (!v) return 0; let n = v.length >= 8 ? 1 : 0; if (v.length >= 12) n++; if (/[a-z]/.test(v) && /[A-Z]/.test(v)) n++; if (/\d/.test(v) && /[^A-Za-z0-9]/.test(v)) n++; return Math.max(1, Math.min(4, n)); };
+const PW_LV = ['', 'อ่อน', 'พอใช้', 'ดี', 'แข็งแรง'];
+function pwSetErr(id, msg){ $('#' + id + 'Err').textContent = msg || ''; $('#' + id).classList.toggle('bad', !!msg); }
+function pwClear(){ ['pw0', 'pw1', 'pw2'].forEach(k => pwSetErr(k, '')); $('#pwErr').textContent = ''; }
+function openPw(mode){
+  pwMode = mode === true ? 'recovery' : mode || 'change';
+  $('#pwForm').reset(); pwClear(); $('#pwMeter').dataset.s = 0; $('#pwLevel').textContent = '';
+  $$('#pwForm .pwf input').forEach(i => i.type = 'password');
+  $('#pwTitle').textContent = pwMode === 'change' ? 'เปลี่ยนรหัสผ่าน' : 'ตั้งรหัสผ่านใหม่';
+  $('#pw0Wrap').hidden = pwMode !== 'change';
+  $$('[data-pwcancel]').forEach(b => b.hidden = pwMode === 'forced');
+  $('[data-pwlogout]').hidden = pwMode !== 'forced';
+  $('#dlgPw').showModal(); (pwMode === 'change' ? $('#pw0') : $('#pw1')).focus();
+}
+$('#dlgPw').addEventListener('cancel', e => { if (pwMode === 'forced') e.preventDefault(); });
+$('#btnPw').onclick = () => openPw('change');
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-eye]'); if (!b) return;
+  const i = b.parentElement.querySelector('input'), show = i.type === 'password';
+  i.type = show ? 'text' : 'password'; b.setAttribute('aria-label', show ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'); b.title = b.getAttribute('aria-label'); b.style.color = show ? 'var(--primary)' : '';
+});
+$('#pw0').oninput = () => pwSetErr('pw0', '');
+$('#pw1').oninput = () => { const v = $('#pw1').value, n = pwScore(v); $('#pwMeter').dataset.s = n; $('#pwLevel').textContent = v ? PW_LV[n] : ''; pwSetErr('pw1', ''); if ($('#pw2').value) pwSetErr('pw2', $('#pw2').value === v ? '' : 'รหัสผ่านไม่ตรงกัน'); };
+$('#pw2').oninput = () => pwSetErr('pw2', $('#pw2').value && $('#pw2').value !== $('#pw1').value ? 'รหัสผ่านไม่ตรงกัน' : '');
 $('#pwForm').onsubmit = async e => {
-  e.preventDefault();
-  const a = $('#pw1').value, b = $('#pw2').value;
-  if (a.length < 8) return $('#pwErr').textContent = 'รหัสผ่านอย่างน้อย 8 ตัวอักษร';
-  if (a !== b) return $('#pwErr').textContent = 'รหัสผ่านทั้งสองช่องไม่ตรงกัน';
+  e.preventDefault(); pwClear();
+  const c = $('#pw0').value, a = $('#pw1').value, b = $('#pw2').value; let bad = false;
+  if (pwMode === 'change' && !c){ pwSetErr('pw0', 'กรอกรหัสผ่านปัจจุบัน'); bad = true; }
+  if (a.length < 8){ pwSetErr('pw1', 'รหัสผ่านอย่างน้อย 8 ตัวอักษร'); bad = true; }
+  else if (pwMode === 'change' && a === c){ pwSetErr('pw1', 'รหัสผ่านใหม่ต้องไม่ซ้ำรหัสเดิม'); bad = true; }
+  if (!b){ pwSetErr('pw2', 'ยืนยันรหัสผ่านใหม่'); bad = true; } else if (a !== b){ pwSetErr('pw2', 'รหัสผ่านไม่ตรงกัน'); bad = true; }
+  if (bad) return;
   if (DEMO.on) { $('#dlgPw').close(); return toast('โหมดตัวอย่าง: ไม่ได้เปลี่ยนรหัสจริง'); }
-  const { error } = await supa.auth.updateUser({ password: a });
-  if (error) return $('#pwErr').textContent = 'เปลี่ยนไม่ได้: ' + error.message;
-  $('#dlgPw').close(); toast('เปลี่ยนรหัสผ่านแล้ว');
+  const btn = $('#pwSave'); btn.disabled = true;
+  try {
+    if (pwMode === 'change'){
+      const { error: e1 } = await supa.auth.signInWithPassword({ email: S.me.email, password: c });
+      if (e1){ pwSetErr('pw0', /invalid/i.test(e1.message) ? 'รหัสผ่านปัจจุบันไม่ถูกต้อง' : 'ตรวจสอบรหัสผ่านไม่ได้ ลองใหม่อีกครั้ง'); return; }
+    }
+    const { error } = await supa.auth.updateUser({ password: a });
+    if (error){ if (/different from the old/i.test(error.message)) pwSetErr('pw1', 'รหัสผ่านใหม่ต้องไม่ซ้ำรหัสเดิม'); else $('#pwErr').textContent = 'เปลี่ยนรหัสผ่านไม่ได้ ลองใหม่อีกครั้ง'; return; }
+    if (S.me && S.me.must_change_pw){ try { await supa.rpc('clear_must_change_pw'); } catch {} S.me.must_change_pw = false; }
+    pwMode = 'change'; $('#dlgPw').close(); toast('เปลี่ยนรหัสผ่านแล้ว');
+  } finally { btn.disabled = false; }
+};
+
+/* ---- Admin รีเซ็ตรหัสผ่านให้ผู้ใช้ ---- */
+let rsUser = null;
+function openReset(id, email){
+  rsUser = { id, email }; $('#rsForm').reset(); $('#rsErr').textContent = '';
+  $('#rsEmail').textContent = email; $('#rsPass').value = genPass(); $('#rsPass').classList.remove('bad');
+  $('#dlgReset').showModal();
+}
+const rsMode = () => ($$('#rsForm [name=rsMode]').find(r => r.checked) || {}).value;
+$('#rsGen').onclick = () => { $('#rsPass').value = genPass(); $('#rsErr').textContent = ''; $('#rsPass').classList.remove('bad'); };
+$('#rsCopy').onclick = async () => { try { await navigator.clipboard.writeText($('#rsPass').value); toast('คัดลอกรหัสแล้ว'); } catch { $('#rsPass').select(); } };
+$('#rsPass').oninput = () => { $('#rsErr').textContent = ''; $('#rsPass').classList.remove('bad'); $$('#rsForm [name=rsMode]').find(r => r.value === 'temp').checked = true; };
+$('#rsForm').onsubmit = async e => {
+  e.preventDefault(); $('#rsErr').textContent = '';
+  const mode = rsMode(), pw = $('#rsPass').value.trim();
+  if (mode === 'temp' && pw.length < 8){ $('#rsPass').classList.add('bad'); $('#rsErr').textContent = 'รหัสผ่านอย่างน้อย 8 ตัวอักษร'; return; }
+  if (DEMO.on){ $('#dlgReset').close(); return toast('โหมดตัวอย่าง: ไม่ได้รีเซ็ตรหัสจริง'); }
+  const btn = $('#rsSave'); btn.disabled = true;
+  try {
+    if (mode === 'email'){
+      const { error } = await supa.auth.resetPasswordForEmail(rsUser.email, { redirectTo: location.href.split(/[?#]/)[0] });
+      if (error){ $('#rsErr').textContent = /rate limit|seconds/i.test(error.message) ? 'ส่งอีเมลถี่เกินไป รอสักครู่แล้วลองใหม่' : 'ส่งอีเมลไม่ได้ ลองใหม่อีกครั้ง'; return; }
+      $('#dlgReset').close(); toast('ส่งลิงก์ตั้งรหัสใหม่ไปที่ ' + rsUser.email + ' แล้ว', 5000);
+    } else {
+      const { error } = await supa.rpc('admin_set_password', { p_user: rsUser.id, p_password: pw });
+      if (error){ $('#rsErr').textContent = /admin_set_password|PGRST202|schema cache/i.test(error.message + error.code) ? 'ระบบยังไม่รองรับการตั้งรหัสชั่วคราว ใช้วิธีส่งลิงก์ทางอีเมลแทน' : (error.message || 'รีเซ็ตรหัสผ่านไม่ได้'); return; }
+      try { await navigator.clipboard.writeText(pw); } catch {}
+      $('#dlgReset').close(); toast('ตั้งรหัสชั่วคราวแล้ว · คัดลอกรหัสไว้ให้แล้ว ส่งให้ผู้ใช้ได้เลย', 5000);
+    }
+  } finally { btn.disabled = false; }
 };
 $('#lgSwitch').onclick = () => {
   signup = !signup; $('#suNameWrap').hidden = !signup; $('#lgMsg').textContent = '';
@@ -1995,6 +2096,7 @@ async function startApp(user){
   try { await Promise.all([loadSettings(), loadCustomers(), loadEmployees(), loadFaulted()]); await loadClaims(from); } catch (e) { dbErr(e); }
   $('.brand-txt small').textContent = isStaff() ? 'ระบบเคลมสินค้า · ตรวจสอบ · ส่งเคลม · รับคืน' : custName(S.customerId) + ' · แจ้งเคลมและติดตามสถานะ';
   fillFilters(); renderClaims(); subscribe();
+  if (me.must_change_pw) openPw('forced');
   const q = new URLSearchParams(location.search).get('claim'); if (q){ const c = [...S.claims.values()].find(x => x.claim_no === q); if (c) openCase(c.id); }
 }
 /* ================= Demo mode: in-memory sample data, nothing is saved (for previewing before Supabase is set up) ================= */
